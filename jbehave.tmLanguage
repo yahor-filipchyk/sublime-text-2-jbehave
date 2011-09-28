@@ -1,0 +1,30 @@
+{	scopeName = 'text.bdd.jbehave';
+	firstLineMatch = 'Narrative:';
+	fileTypes = ( 'story' );
+	patterns = (
+		{	name = 'entity.section';
+			match = '^(Narrative|Scenario)\b';
+		},
+		{	name = 'keyword.control.step';
+			match = '^(Given|When|Then|And|Example)\b';
+		},
+		{	name = 'constant.numeric';
+			match = '\b(\d+[\.\d]*)\b';
+		},
+		{	name = 'comment.line';
+			match = '^(\!\-\-.*)$';
+		},
+		{	name = 'keyword.operator';
+			match = '\|';
+		},
+		{	name = 'string.quoted.double.untitled';
+			begin = '"';
+			end = '"';
+			patterns = (
+				{	name = 'constant.character.escape.untitled';
+					match = '\\.';
+				},
+			);
+		},
+	);
+}

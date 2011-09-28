@@ -38,15 +38,15 @@ This pattern could be improved:
 
 Ideally it should only match keywords with a trailing colon, but these patterns do not match:
 
-    {	name = 'entity.section';
+    { name = 'entity.section';
       match = '^(Narrative|Scenario)\:\b';
     }
 
-    {	name = 'entity.section';
+    { name = 'entity.section';
       match = '^(Narrative|Scenario)[\:]\b';
     }
 
-    {	name = 'entity.section';
+    { name = 'entity.section';
       match = '^(Narrative|Scenario)[\x3A]\b';
     }
 
