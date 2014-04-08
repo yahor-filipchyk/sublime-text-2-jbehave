@@ -4,22 +4,25 @@ import re
 
 STEPS_FOLDER = r'C:\th\thx\repo\juice-test\juice-test-behaviour\src\main\java\com\thunderhead\juice\integration\jbehave\steps'
 
+def does_story_step_match_actual(story_step, actual_step):
+	step_pattern = get_step_pattern(actual_step)
+	return story_step == actual_step or re.match(step_pattern, story_step) is not None
+
+def get_step_pattern(step):
+	params = re.findall(r'\s?(\$\w+|<\w+>)\s?', step)
+	step_pattern = str(step)
+	for param in params:
+		step_pattern = re.sub(re.escape(param), '(.*)', step_pattern, 1)
+	return step_pattern
+
 class HighlightParamsCommand(sublime_plugin.EventListener):
 	"""Highligts actual parameters in steps"""
 
-	def highlightSteps(self):
-		print("Text modified")
-		pass
-
 	def on_modified(self, view):
-		print(view.substr(view.visible_region()))
+		pass
 
 class OpenJavaFileCommand(sublime_plugin.TextCommand):
 	"""Opens Java file"""
-
-	def highlightSteps(self):
-		print("Text modified")
-		pass
 
 	def run(self, edit):
 		view = self.view
@@ -27,8 +30,9 @@ class OpenJavaFileCommand(sublime_plugin.TextCommand):
 		java_file, found_step = self.find_file(STEPS_FOLDER, step)
 		print(java_file, found_step)
 		if java_file is not None:
-			self.view.window().open_file(java_file)
-		# self.view.window().active_view()
+			window = self.view.window()
+			window.open_file(java_file)
+			# add selection of found step in new tab
 
 	def find_file(self, steps_dir, step):
 		step = str(re.sub("(Given|When|Then|And)\s", "", step))
@@ -38,20 +42,16 @@ class OpenJavaFileCommand(sublime_plugin.TextCommand):
 			if os.path.isdir(full_path):
 				found_file, found_step = self.find_file(full_path, step)
 				if found_file is not None:
-					return found
+					return found_file, found_step
 			else:
 				if not source_file.endswith(".java"):
 					continue
 				with open(full_path, "r") as source:
 					for line in source.readlines():
-						match = re.search(r'^\s*@(When|Then|Given)\("(.*)"\)\s?$', line)
+						match = re.search(r'^\s*@(When|Then|Given|Alias)\("(.*)"\)\s?$', line)
 						if match is not None:
 							candidate = match.group(2)
-							params = re.findall(r'\s?(\$\w+|<\w+>)\s?', candidate)
-							step_pattern = str(candidate)
-							for param in params:
-								step_pattern = re.sub(re.escape(param), '(.*)', step_pattern, 1)
-							if step == candidate or re.match(step_pattern, step) is not None:
+							if does_story_step_match_actual(step, candidate):
 								return full_path, candidate
 		return None, None
 
