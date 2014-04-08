@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>author</key>
+	<string>Michael Sheets</string>
+	<key>name</key>
+	<string>Twilight</string>
+	<key>settings</key>
+	<array>
+		<!-- Common settings -->
+		<dict>
+			<key>settings</key>
+			<dict>
+				<key>background</key>
+				<string>#252525</string>
+				<key>caret</key>
+				<string>#A7A7A7</string>
+				<key>foreground</key>
+				<string>#eeeeee</string>
+				<key>invisibles</key>
+				<string>#FFFFFF40</string>
+				<key>lineHighlight</key>
+				<string>#FFFFFF08</string>
+				<key>selection</key>
+				<string>#DDF0FF33</string>
+			</dict>
+		</dict>
+		<!-- comments -->
+		<dict>
+			<key>name</key>
+			<string>Comment</string>
+			<key>scope</key>
+			<string>comment</string>
+			<key>settings</key>
+			<dict>
+				<key>fontStyle</key>
+				<string>italic</string>
+				<key>foreground</key>
+				<string>#666666</string>
+			</dict>
+		</dict>
+		<!-- steps -->
+		<dict>
+			<key>name</key>
+			<string>Step</string>
+			<key>scope</key>
+			<string>keyword.control.step</string>
+			<key>settings</key>
+			<dict>
+				<key>fontStyle</key>
+				<string>bold</string>
+				<key>foreground</key>
+				<string>#1C6799</string>
+			</dict>
+		</dict>
+		<!-- Narratives and scenarios -->
+		<dict>
+			<key>name</key>
+			<string>Section</string>
+			<key>scope</key>
+			<string>entity.section</string>
+			<key>settings</key>
+			<dict>
+				<key>fontStyle</key>
+				<string>bold</string>
+				<key>foreground</key>
+				<string>#A88F1E</string>
+			</dict>
+		</dict>
+		<!-- Metatags -->
+		<dict>
+			<key>name</key>
+			<string>Metatags</string>
+			<key>scope</key>
+			<string>metatags</string>
+			<key>settings</key>
+			<dict>
+				<key>fontStyle</key>
+				<string>bold</string>
+				<key>foreground</key>
+				<string>#7486D6</string>
+			</dict>
+		</dict>
+		<!-- Examples -->
+		<dict>
+			<key>name</key>
+			<string>Examples</string>
+			<key>scope</key>
+			<string>examples</string>
+			<key>settings</key>
+			<dict>
+				<key>fontStyle</key>
+				<string>bold</string>
+				<key>foreground</key>
+				<string>#FAE589</string>
+			</dict>
+		</dict>
+		<!-- example tables -->
+		<dict>
+			<key>name</key>
+			<string>Examples Table</string>
+			<key>scope</key>
+			<string>examplestable</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>#FAE589</string>
+			</dict>
+		</dict>
+		<!-- Parameter with dollar sign -->
+		<dict>
+			<key>name</key>
+			<string>Parameter with dollar</string>
+			<key>scope</key>
+			<string>parameterdollar</string>
+			<key>settings</key>
+			<dict>
+				<key>fontStyle</key>
+				<string>bold</string>
+				<key>foreground</key>
+				<string>#C4751F</string>
+			</dict>
+		</dict>
+		<!-- Parameter in <...> -->
+		<dict>
+			<key>name</key>
+			<string>Parameter</string>
+			<key>scope</key>
+			<string>parameter</string>
+			<key>settings</key>
+			<dict>
+				<key>fontStyle</key>
+				<string>bold</string>
+				<key>foreground</key>
+				<string>#EDD466</string>
+			</dict>
+		</dict>
+		<!-- Constants -->
+		<dict>
+			<key>name</key>
+			<string>Constant</string>
+			<key>scope</key>
+			<string>constant</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>#CF6A4C</string>
+			</dict>
+		</dict>	
+	</array>
+	<key>uuid</key>
+	<string>766026CB-703D-4610-B070-8DE07D955C5F</string>
+</dict>
+</plist>
