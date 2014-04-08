@@ -24,8 +24,8 @@ class OpenJavaFileCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
 		view = self.view
 		step = view.substr(view.line(self.view.sel()[0].begin()))
-		java_file = self.find_file(STEPS_FOLDER, step)
-		print(java_file)
+		java_file, found_step = self.find_file(STEPS_FOLDER, step)
+		print(java_file, found_step)
 		if java_file is not None:
 			self.view.window().open_file(java_file)
 		# self.view.window().active_view()
@@ -36,8 +36,8 @@ class OpenJavaFileCommand(sublime_plugin.TextCommand):
 		for source_file in files:
 			full_path = os.path.join(steps_dir, source_file)
 			if os.path.isdir(full_path):
-				found = self.find_file(full_path, step)
-				if found is not None:
+				found_file, found_step = self.find_file(full_path, step)
+				if found_file is not None:
 					return found
 			else:
 				if not source_file.endswith(".java"):
@@ -52,7 +52,8 @@ class OpenJavaFileCommand(sublime_plugin.TextCommand):
 							for param in params:
 								step_pattern = re.sub(re.escape(param), '(.*)', step_pattern, 1)
 							if step == candidate or re.match(step_pattern, step) is not None:
-								return full_path
+								return full_path, candidate
+		return None, None
 
 class AutoCompleteStepCommand(sublime_plugin.TextCommand):
 	"""Autocompletes steps"""
