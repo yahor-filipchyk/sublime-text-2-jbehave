@@ -27,38 +27,6 @@ To-Do:
  * GivenStories
 
 
-Known Issue
------------
-
-This pattern could be improved:
-
-    {	name = 'entity.section';  
-      match = '^(Narrative|Scenario)\b';
-    }
-
-Ideally it should only match keywords with a trailing colon, but these patterns do not match:
-
-    { name = 'entity.section';
-      match = '^(Narrative|Scenario)\:\b';
-    }
-
-    { name = 'entity.section';
-      match = '^(Narrative|Scenario)[\:]\b';
-    }
-
-    { name = 'entity.section';
-      match = '^(Narrative|Scenario)[\x3A]\b';
-    }
-
-The last example should match the colon according to [MacroMates regular expressions][re] but we get this error:
-
-    invalid regular expression for 'match'-key 
-    (too short multibyte code string for pattern 
-    ^(Narrative|Scenario)\x3A\b)
-
-
-
-
 [jb]: http://jbehave.org/reference/stable/
 [bdd]: http://behaviour-driven.org/
 [re]: http://manual.macromates.com/en/regular_expressions
