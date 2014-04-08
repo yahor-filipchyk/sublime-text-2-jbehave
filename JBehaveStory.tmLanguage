@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>fileTypes</key>
@@ -10,24 +10,28 @@
 	<string>JBehave Story</string>
 	<key>patterns</key>
 	<array>
+		<!-- Narratives and scenarios -->
 		<dict>
 			<key>match</key>
-			<string>^(Narrative|Scenario)[:]?\b</string>
+			<string>^(Narrative|Scenario):.*$</string>
 			<key>name</key>
 			<string>entity.section</string>
 		</dict>
+		<!-- Narrative description -->
+		<dict>
+			<key>match</key>
+			<string>^(In order to|As a|I want to)</string>
+			<key>name</key>
+			<string>entity.section</string>
+		</dict>
+		<!-- Steps -->
 		<dict>
 			<key>match</key>
 			<string>^(Given|When|Then|And|Example)\b</string>
 			<key>name</key>
 			<string>keyword.control.step</string>
 		</dict>
-		<dict>
-			<key>match</key>
-			<string>\b(\d+[\.\d]*)\b</string>
-			<key>name</key>
-			<string>constant.numeric</string>
-		</dict>
+		<!-- Comments -->
 		<dict>
 			<key>comment</key>
 			<string>Lines starting with !-- ...</string>
@@ -36,16 +40,52 @@
 			<key>name</key>
 			<string>comment.line</string>
 		</dict>
+		<!-- Metatags -->
 		<dict>
 			<key>match</key>
-			<string>\|</string>
+			<string>^(Meta:|@.*$)</string>
 			<key>name</key>
-			<string>keyword.operator</string>
+			<string>metatags</string>
+		</dict>
+		<!-- Examples -->
+		<dict>
+			<key>match</key>
+			<string>^Examples:\s.*</string>
+			<key>name</key>
+			<string>examples</string>
+		</dict>
+		<!-- Example tables -->
+		<dict>
+			<key>match</key>
+			<string>^\|.*\|$</string>
+			<key>name</key>
+			<string>examplestable</string>
+		</dict>
+		<!-- Parameters with dollar sign -->
+		<dict>
+			<key>match</key>
+			<string>\s\$\w+\b</string>
+			<key>name</key>
+			<string>parameterdollar</string>
+		</dict>
+		<!-- Parameters in <...> -->
+		<dict>
+			<key>match</key>
+			<string>&lt;\w+&gt;</string>
+			<key>name</key>
+			<string>parameter</string>
+		</dict>
+		<!-- Other strings -->
+		<dict>
+			<key>match</key>
+			<string>^\w+.*$</string>
+			<key>name</key>
+			<string>entity.section</string>
 		</dict>
 	</array>
 	<key>scopeName</key>
 	<string>text.bdd.jbehave</string>
 	<key>uuid</key>
-	<string>1fc46d40-380c-4163-b5a9-32ac28f6e898</string>
+	<string>1fc46d40-380c-4163-b5a9-32ac28f6e899</string>
 </dict>
 </plist>
