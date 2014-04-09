@@ -1,0 +1,4 @@
+[
+	{ "keys": ["ctrl+space"], "command": "auto_complete_step" },
+	{ "keys": ["ctrl+alt+o"], "command": "open_java_file" }
+]
