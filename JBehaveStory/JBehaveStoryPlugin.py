@@ -55,8 +55,61 @@ class OpenJavaFileCommand(sublime_plugin.TextCommand):
 								return full_path, candidate
 		return None, None
 
-class AutoCompleteStepCommand(sublime_plugin.TextCommand):
-	"""Autocompletes steps"""
+class AutoCompleteCollector(sublime_plugin.EventListener):	
+	""" Autocompletes steps """
+	files_list = None
+	all_steps_list = None
+	all_steps_parsed_list = None
 
-	def run(self, view):
-		print("Going to autocomplete")
+	def __init__(self):
+		self.files_list = []
+		self.all_steps_list = []
+		self.all_steps_parsed_list = []
+
+	def get_java_steps_files(self, dir_name):
+		""" Get all the java steps files """
+		for root, dirnames, filenames in os.walk(dir_name):
+			for filename in fnmatch.filter(filenames, "*Steps.java"):
+				self.files_list.append(os.path.join(root, filename))
+		return self.files_list
+
+	def get_all_steps(self):
+		""" Returns a list of @When('I click on button $button') lines' """
+		if len(self.files_list) == 0:
+			self.get_java_steps_files(STEPS_FOLDER)
+		for file in self.files_list:
+			with open(file) as java_step_class:
+				for line in java_step_class:
+					if re.match(r'\s*@(When|Then|Given)', line):
+						self.all_steps_list.append(line.strip())
+
+	def remove_characters_from_java_step(self, java_step):				
+		return java_step.replace('@', '').replace('\"', '').replace('(', ' ').replace(')', ' ')
+
+	def remove_characters_from_java_steps(self):
+		""" Returns a list of When I click on button $button lines' """
+		for step in self.all_steps_list:
+			self.all_steps_parsed_list.append(self.remove_characters_from_java_step(step))
+
+	def get_autocomplete_list(self, prefix):
+		autocomplete_list = []		
+		for step in self.all_steps_parsed_list:			
+			if step.startswith(prefix):
+				autocomplete_list.append(step)
+		return autocomplete_list
+
+	def on_post_save(self, view):		
+		self.get_all_steps()		
+		self.remove_characters_from_java_steps()								
+
+	def on_query_completions(self, view, prefix, location):
+		completions = []				
+		print("files_list:" + str(len(self.files_list)))
+		print("all_steps_list: " + str(len(self.all_steps_list)))
+		print("all_steps_parsed_list: " + str(len(self.all_steps_parsed_list)))
+		if '.story' in view.file_name():			
+			print("prefix:" + prefix)
+			print("len:" + str(len(self.get_autocomplete_list(prefix))))				
+			return self.get_autocomplete_list(prefix)			
+		completions.sort()				
+		return (completions, sublime.INHIBIT_EXPLICIT_COMPLETIONS)	
