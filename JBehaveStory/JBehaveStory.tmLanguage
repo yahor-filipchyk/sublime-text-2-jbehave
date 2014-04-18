@@ -27,7 +27,7 @@
 		<!-- Steps -->
 		<dict>
 			<key>match</key>
-			<string>^(Given|When|Then|And|Example)\b</string>
+			<string>^(Given|When|Then|And|GivenStories)\b</string>
 			<key>name</key>
 			<string>keyword.control.step</string>
 		</dict>
@@ -80,7 +80,7 @@
 			<key>match</key>
 			<string>^\w+.*$</string>
 			<key>name</key>
-			<string>entity.section</string>
+			<string>other</string>
 		</dict>
 	</array>
 	<key>scopeName</key>

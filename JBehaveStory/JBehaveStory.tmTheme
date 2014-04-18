@@ -26,6 +26,18 @@
 				<string>#DDF0FF33</string>
 			</dict>
 		</dict>
+		<!-- other strings -->
+		<dict>
+			<key>name</key>
+			<string>Other</string>
+			<key>scope</key>
+			<string>other</string>
+			<key>settings</key>
+			<dict>
+				<key>foreground</key>
+				<string>#AB6373</string>
+			</dict>
+		</dict>
 		<!-- comments -->
 		<dict>
 			<key>name</key>
