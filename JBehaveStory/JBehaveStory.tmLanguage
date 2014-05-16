@@ -20,7 +20,7 @@
 		<!-- Narrative description -->
 		<dict>
 			<key>match</key>
-			<string>^(In order to|As a|I want to)</string>
+			<string>^(In order to|As a|As an|I want to)</string>
 			<key>name</key>
 			<string>entity.section</string>
 		</dict>
@@ -68,7 +68,7 @@
 			<key>name</key>
 			<string>parameterdollar</string>
 		</dict>
-		<!-- Parameters in <...> -->
+		<!-- Parameters inside <...> -->
 		<dict>
 			<key>match</key>
 			<string>&lt;\w+&gt;</string>
