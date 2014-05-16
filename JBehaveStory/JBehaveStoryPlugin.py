@@ -1,12 +1,15 @@
 import sublime, sublime_plugin
 import os
 import re
+import webbrowser
 
 STEPS_FOLDER = r'C:\th\thx\repo\juice-test\juice-test-behaviour\src\main\java\com\thunderhead\juice\integration\jbehave\steps'
+
 
 def does_story_step_match_actual(story_step, actual_step):
 	step_pattern = get_step_pattern(actual_step)
 	return story_step == actual_step or re.match(step_pattern, story_step) is not None
+
 
 def get_step_pattern(step):
 	params = re.findall(r'\s?(\$\w+|<\w+>)\s?', step)
@@ -15,18 +18,36 @@ def get_step_pattern(step):
 		step_pattern = re.sub(re.escape(param), '(.*)', step_pattern, 1)
 	return step_pattern
 
+
 class HighlightParamsCommand(sublime_plugin.EventListener):
 	"""Highligts actual parameters in steps"""
 
 	def on_modified(self, view):
 		pass
 
+
+class OpenJiraIssue(sublime_plugin.TextCommand):
+
+	def run(self, edit):
+		view = self.view
+		cursor = view.sel()
+		line = view.substr(view.word(view.sel()[0].begin()))
+		match = re.search(r'((thx|ofmr)(\d+))', line, re.IGNORECASE)
+		if match is not None and len(match.groups()) > 2:
+			issue = match.group(2).upper() + "-" + match.group(3)
+			print(issue)
+			webbrowser.open_new_tab("https://thunderhead.jira.com/browse/" + issue)
+		else:
+			# print("Cannot parse issue number")
+			view.set_status("issue", "Cannot parse issue number")
+
+
 class OpenJavaFileCommand(sublime_plugin.TextCommand):
 	"""Opens Java file"""
 
 	def run(self, edit):
 		view = self.view
-		step = view.substr(view.line(self.view.sel()[0].begin()))
+		step = view.substr(view.line(view.sel()[0].begin()))
 		java_file, found_step = self.find_file(STEPS_FOLDER, step)
 		print(java_file, found_step)
 		if java_file is not None:
@@ -54,6 +75,7 @@ class OpenJavaFileCommand(sublime_plugin.TextCommand):
 							if does_story_step_match_actual(step, candidate):
 								return full_path, candidate
 		return None, None
+
 
 class AutoCompleteCollector(sublime_plugin.EventListener):	
 	""" Autocompletes steps """

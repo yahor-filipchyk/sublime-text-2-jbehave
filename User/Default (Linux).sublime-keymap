@@ -1,4 +1,5 @@
 [
 	{ "keys": ["ctrl+space"], "command": "auto_complete_step" },
+	{ "keys": ["ctrl+alt+i"], "command": "open_jira_issue" },
 	{ "keys": ["ctrl+alt+o"], "command": "open_java_file" }
 ]
