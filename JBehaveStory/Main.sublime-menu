@@ -1,0 +1,88 @@
+[
+	{
+	    "caption": "Automation",
+	    "mnemonic": "A",
+	    "id": "run",
+	    "children": [
+	    	{
+	    		"caption": "Current file",
+	    		"children": [
+	    			{
+	    				"caption": "local",
+	    				"command": "run_story",
+	    				"args": {"environment": "local", "instance": 0}
+	    			},
+	    			{
+	    				"caption": "XQaDev",
+	    				"command": "run_story",
+	    				"args": {"environment": "xqadev", "instance": 0}
+	    			},
+	    			{
+	    				"caption": "XStaging",
+	    				"command": "run_story",
+	    				"args": {"environment": "xstaging", "instance": 0}
+	    			},
+	    			{
+	    				"caption": "XDevTiny ...",
+	    				"children": [
+	    					{
+	    						"caption": "XDevTiny1",
+	    						"command": "run_story",
+	    						"args": {"environment": "xdevtiny", "instance": 1}
+	    					},
+	    					{
+	    						"caption": "XDevTiny2",
+	    						"command": "run_story",
+	    						"args": {"environment": "xdevtiny", "instance": 2}
+	    					},
+	    					{
+	    						"caption": "XDevTiny3",
+	    						"command": "run_story",
+	    						"args": {"environment": "xdevtiny", "instance": 3}
+	    					},
+	    					{
+	    						"caption": "XDevTiny4",
+	    						"command": "run_story",
+	    						"args": {"environment": "xdevtiny", "instance": 4}
+	    					},
+	    					{
+	    						"caption": "XDevTiny5",
+	    						"command": "run_story",
+	    						"args": {"environment": "xdevtiny", "instance": 5}
+	    					},
+	    					{
+	    						"caption": "XDevTiny6",
+	    						"command": "run_story",
+	    						"args": {"environment": "xdevtiny", "instance": 6}
+	    					},
+	    					{
+	    						"caption": "XDevTiny7",
+	    						"command": "run_story",
+	    						"args": {"environment": "xdevtiny", "instance": 7}
+	    					},
+	    					{
+	    						"caption": "XDevTiny8",
+	    						"command": "run_story",
+	    						"args": {"environment": "xdevtiny", "instance": 8}
+	    					},
+	    					{
+	    						"caption": "XDevTiny9",
+	    						"command": "run_story",
+	    						"args": {"environment": "xdevtiny", "instance": 9}
+	    					},
+	    					{
+	    						"caption": "XDevTiny10",
+	    						"command": "run_story",
+	    						"args": {"environment": "xdevtiny", "instance": 10}
+	    					}
+	    				]
+	    			}
+	    		]
+	    	},
+	    	{
+	    		"caption": "Stop current",
+	    		"command": "stop_automation"
+	    	}
+	    ]
+	}
+]

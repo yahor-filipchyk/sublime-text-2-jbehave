@@ -2,8 +2,33 @@ import sublime, sublime_plugin
 import os
 import re
 import webbrowser
+from subprocess import Popen, PIPE
+import threading
 
 STEPS_FOLDER = r'C:\th\thx\repo\juice-test\juice-test-behaviour\src\main\java\com\thunderhead\juice\integration\jbehave\steps'
+PROJECT_FOLDER = r'C:\th\thx\repo\juice-test\juice-test-behaviour'
+MAVEN_FOLDER = "C:\\th\\apps\\apache-maven-3.1.0\\bin\\"
+
+STORY_FOLDER = "story.folder"
+STORY_FILTER = "story.filter"
+TEST_URI = "test.uri"
+LOCAL = "local"
+XQADEV = "xqadev"
+XSTAGING = "xstaging"
+XDEVTINY = "xdevtiny"
+
+DEFAULT_URLS = {
+	LOCAL: "https://www.thxcloud.com",
+	XQADEV: "https://xqadev.thunderhead.com",
+	XSTAGING: "https://xstaging.thunderhead.com",
+	XDEVTINY: "https://xdevtiny{0}.thunderhead.com",
+}
+
+DEFAULT_CONFIG = {
+	STORY_FOLDER: "",
+	STORY_FILTER: "",
+	TEST_URI: XQADEV,
+}
 
 
 def does_story_step_match_actual(story_step, actual_step):
@@ -25,6 +50,60 @@ class HighlightParamsCommand(sublime_plugin.EventListener):
 	def on_modified(self, view):
 		pass
 
+
+AUTOMATION_RUN = None
+
+
+class StopAutomationCommand(sublime_plugin.TextCommand):
+
+	def run(self, edit):
+		global AUTOMATION_RUN
+		if AUTOMATION_RUN is not None:
+			AUTOMATION_RUN.kill()
+
+
+class RunStoryCommand(sublime_plugin.TextCommand):
+
+	def run(self, edit, environment, instance):
+		current_file = self.view.file_name()
+		match = re.search(r'(\\|/)(\w+)\.story', current_file)
+		story = DEFAULT_CONFIG[STORY_FILTER]
+		folder = DEFAULT_CONFIG[STORY_FOLDER]
+		if match:
+			story = match.group(2)
+			match = re.search(r'stories(\\|/)(.*)(\\|/)' + story + r'\.story', current_file)
+			if match:
+				folder = re.sub(r'\\', r'/', match.group(2))
+		config = dict(DEFAULT_CONFIG)
+		config[STORY_FOLDER] = folder
+		config[STORY_FILTER] = story
+		if environment == XDEVTINY:
+			config[TEST_URI] = DEFAULT_URLS[XDEVTINY].format(instance)
+		else:
+			config[TEST_URI] = DEFAULT_URLS[environment]
+		args = ""
+		for key in config.keys():
+			if config[key] != "":
+				args += "-D" + key + "=" + config[key] + " "
+		if config[STORY_FILTER] != "" and config[STORY_FOLDER] != "":
+			self.view.window().show_input_panel("Run", args[0:-1], self.get_input, None, None)
+
+	def get_input(self, text):
+		args = MAVEN_FOLDER + "mvn clean install " + text
+		print(args)
+		global AUTOMATION_RUN
+		AUTOMATION_RUN = Popen(args, stdout=PIPE, universal_newlines=True, cwd=PROJECT_FOLDER, shell=True)
+		t = threading.Thread(target=self.read_output)
+		t.setDaemon(True)
+		t.start()
+
+	def read_output(self):
+		global AUTOMATION_RUN
+		while AUTOMATION_RUN is not None and not AUTOMATION_RUN.poll():
+			line = re.sub(r'(\n|\r)$', r'', AUTOMATION_RUN.stdout.readline())
+			if line != "":
+				print(line)		
+		print("Automation was stopped")
 
 class OpenJiraIssue(sublime_plugin.TextCommand):
 
