@@ -78,7 +78,10 @@ class RunStoryCommand(sublime_plugin.TextCommand):
 		config[STORY_FOLDER] = folder
 		config[STORY_FILTER] = story
 		if environment == XDEVTINY:
-			config[TEST_URI] = DEFAULT_URLS[XDEVTINY].format(instance)
+			if instance == 10:
+				config[TEST_URI] = DEFAULT_URLS[XDEVTINY].format(instance) + ":4443"
+			else:
+				config[TEST_URI] = DEFAULT_URLS[XDEVTINY].format(instance)
 		else:
 			config[TEST_URI] = DEFAULT_URLS[environment]
 		args = ""
@@ -89,7 +92,7 @@ class RunStoryCommand(sublime_plugin.TextCommand):
 			self.view.window().show_input_panel("Run", args[0:-1], self.get_input, None, None)
 
 	def get_input(self, text):
-		args = MAVEN_FOLDER + "mvn clean install " + text
+		args = r'{0}mvn -s C:\th\apps\apache-maven-3.1.0\conf\settings.xml clean install -Dtest.contextView=false {1}'.format(MAVEN_FOLDER, text)
 		print(args)
 		global AUTOMATION_RUN
 		AUTOMATION_RUN = Popen(args, stdout=PIPE, universal_newlines=True, cwd=PROJECT_FOLDER, shell=True)
