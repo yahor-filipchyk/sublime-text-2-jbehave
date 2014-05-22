@@ -121,7 +121,7 @@ class OpenJiraIssue(sublime_plugin.TextCommand):
 		match = re.search(r'((thx|ofmr)(\d+))', line, re.IGNORECASE)
 		if match is not None and len(match.groups()) > 2:
 			issue = match.group(2).upper() + "-" + match.group(3)
-			print(issue)
+			view.set_status("issue", issue)
 			webbrowser.open_new_tab("https://thunderhead.jira.com/browse/" + issue)
 		else:
 			view.set_status("issue", "Cannot parse issue number")
