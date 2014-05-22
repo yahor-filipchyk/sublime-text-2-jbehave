@@ -5,8 +5,7 @@ import webbrowser
 from subprocess import Popen, PIPE
 import threading
 
-STEPS_FOLDER = r'C:\th\thx\repo\juice-test\juice-test-behaviour\src\main\java\com\thunderhead\juice\integration\jbehave\steps'
-PROJECT_FOLDER = r'C:\th\thx\repo\juice-test\juice-test-behaviour'
+STEPS_FOLDER = "src{0}main{0}java{0}com{0}thunderhead{0}juice{0}integration{0}jbehave{0}steps".format(os.sep)
 MAVEN_FOLDER = "C:\\th\\apps\\apache-maven-3.1.0\\bin\\"
 
 STORY_FOLDER = "story.folder"
@@ -30,6 +29,8 @@ DEFAULT_CONFIG = {
 	TEST_URI: XQADEV,
 }
 
+AUTOMATION_RUN = None
+
 
 def does_story_step_match_actual(story_step, actual_step):
 	step_pattern = get_step_pattern(actual_step)
@@ -43,15 +44,18 @@ def get_step_pattern(step):
 		step_pattern = re.sub(re.escape(param), '(.*)', step_pattern, 1)
 	return step_pattern
 
+def get_project_folder(current_file):
+	match = re.search(r'(.*juice-test(\\|/)juice-test-behaviour(\\|/)).*', current_file)
+	if match:
+		return match.group(1)
+	return None
+
 
 class HighlightParamsCommand(sublime_plugin.EventListener):
 	"""Highligts actual parameters in steps"""
 
 	def on_modified(self, view):
 		pass
-
-
-AUTOMATION_RUN = None
 
 
 class StopAutomationCommand(sublime_plugin.TextCommand):
@@ -95,7 +99,7 @@ class RunStoryCommand(sublime_plugin.TextCommand):
 		args = r'{0}mvn -s C:\th\apps\apache-maven-3.1.0\conf\settings.xml clean install -Dtest.contextView=false {1}'.format(MAVEN_FOLDER, text)
 		print(args)
 		global AUTOMATION_RUN
-		AUTOMATION_RUN = Popen(args, stdout=PIPE, universal_newlines=True, cwd=PROJECT_FOLDER, shell=True)
+		AUTOMATION_RUN = Popen(args, stdout=PIPE, universal_newlines=True, cwd=get_project_folder(current_file), shell=True)
 		t = threading.Thread(target=self.read_output)
 		t.setDaemon(True)
 		t.start()
@@ -120,7 +124,6 @@ class OpenJiraIssue(sublime_plugin.TextCommand):
 			print(issue)
 			webbrowser.open_new_tab("https://thunderhead.jira.com/browse/" + issue)
 		else:
-			# print("Cannot parse issue number")
 			view.set_status("issue", "Cannot parse issue number")
 
 
@@ -130,7 +133,9 @@ class OpenJavaFileCommand(sublime_plugin.TextCommand):
 	def run(self, edit):
 		view = self.view
 		step = view.substr(view.line(view.sel()[0].begin()))
-		java_file, found_step = self.find_file(STEPS_FOLDER, step)
+		current_file = self.view.file_name()
+		steps_path = get_project_folder(current_file) + os.sep + STEPS_FOLDER
+		java_file, found_step = self.find_file(steps_path, step)
 		print(java_file, found_step)
 		if java_file is not None:
 			window = self.view.window()
