@@ -8,6 +8,8 @@ import threading
 STEPS_FOLDER = "src{0}main{0}java{0}com{0}thunderhead{0}juice{0}integration{0}jbehave{0}steps".format(os.sep)
 MAVEN_FOLDER = "C:\\th\\apps\\apache-maven-3.1.0\\bin\\"
 
+JIRA_BROWSE = "https://thunderhead.jira.com/browse/"
+
 STORY_FOLDER = "story.folder"
 STORY_FILTER = "story.filter"
 TEST_URI = "test.uri"
@@ -122,7 +124,7 @@ class OpenJiraIssue(sublime_plugin.TextCommand):
 		if match is not None and len(match.groups()) > 2:
 			issue = match.group(2).upper() + "-" + match.group(3)
 			view.set_status("issue", issue)
-			webbrowser.open_new_tab("https://thunderhead.jira.com/browse/" + issue)
+			webbrowser.open_new_tab(JIRA_BROWSE + issue)
 		else:
 			view.set_status("issue", "Cannot parse issue number")
 
