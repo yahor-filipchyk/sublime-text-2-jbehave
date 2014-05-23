@@ -4,9 +4,12 @@ import re
 import webbrowser
 from subprocess import Popen, PIPE
 import threading
+import sys
 
+PROJECT_FOLDER = "C:\\th" if "win" in sys.platform else "/th"
 STEPS_FOLDER = "src{0}main{0}java{0}com{0}thunderhead{0}juice{0}integration{0}jbehave{0}steps".format(os.sep)
-MAVEN_FOLDER = "C:\\th\\apps\\apache-maven-3.1.0\\bin\\"
+MAVEN_FOLDER = PROJECT_FOLDER + "{0}apps{0}apache-maven-3.1.0{0}bin".format(os.sep)
+MAVEN_SETTINGS = PROJECT_FOLDER + "{0}apps{0}apache-maven-3.1.0{0}conf{0}settings.xml".format(os.sep)
 
 JIRA_BROWSE = "https://thunderhead.jira.com/browse/"
 
@@ -17,6 +20,7 @@ LOCAL = "local"
 XQADEV = "xqadev"
 XSTAGING = "xstaging"
 XDEVTINY = "xdevtiny"
+TINY10_PORT = 4443
 
 DEFAULT_URLS = {
 	LOCAL: "https://www.thxcloud.com",
@@ -46,7 +50,7 @@ def get_step_pattern(step):
 		step_pattern = re.sub(re.escape(param), '(.*)', step_pattern, 1)
 	return step_pattern
 
-def get_project_folder(current_file):
+def get_automation_folder(current_file):
 	match = re.search(r'(.*juice-test(\\|/)juice-test-behaviour(\\|/)).*', current_file)
 	if match:
 		return match.group(1)
@@ -70,14 +74,18 @@ class StopAutomationCommand(sublime_plugin.TextCommand):
 
 class RunStoryCommand(sublime_plugin.TextCommand):
 
+	def __init__(self, edit):
+		sublime_plugin.TextCommand.__init__(self, edit)
+		self.current_file = None
+
 	def run(self, edit, environment, instance):
-		current_file = self.view.file_name()
-		match = re.search(r'(\\|/)(\w+)\.story', current_file)
+		self.current_file = self.view.file_name()
+		match = re.search(r'(\\|/)(\w+)\.story', self.current_file)
 		story = DEFAULT_CONFIG[STORY_FILTER]
 		folder = DEFAULT_CONFIG[STORY_FOLDER]
 		if match:
 			story = match.group(2)
-			match = re.search(r'stories(\\|/)(.*)(\\|/)' + story + r'\.story', current_file)
+			match = re.search(r'stories(\\|/)(.*)(\\|/)' + story + r'\.story', self.current_file)
 			if match:
 				folder = re.sub(r'\\', r'/', match.group(2))
 		config = dict(DEFAULT_CONFIG)
@@ -85,7 +93,7 @@ class RunStoryCommand(sublime_plugin.TextCommand):
 		config[STORY_FILTER] = story
 		if environment == XDEVTINY:
 			if instance == 10:
-				config[TEST_URI] = DEFAULT_URLS[XDEVTINY].format(instance) + ":4443"
+				config[TEST_URI] = DEFAULT_URLS[XDEVTINY].format(instance) + ":" + str(TINY10_PORT)
 			else:
 				config[TEST_URI] = DEFAULT_URLS[XDEVTINY].format(instance)
 		else:
@@ -98,10 +106,10 @@ class RunStoryCommand(sublime_plugin.TextCommand):
 			self.view.window().show_input_panel("Run", args[0:-1], self.get_input, None, None)
 
 	def get_input(self, text):
-		args = r'{0}mvn -s C:\th\apps\apache-maven-3.1.0\conf\settings.xml clean install -Dtest.contextView=false {1}'.format(MAVEN_FOLDER, text)
+		args = r'{0}{1}mvn -s {2} clean install -Dtest.contextView=false {3}'.format(MAVEN_FOLDER, os.sep, MAVEN_SETTINGS, text)
 		print(args)
 		global AUTOMATION_RUN
-		AUTOMATION_RUN = Popen(args, stdout=PIPE, universal_newlines=True, cwd=get_project_folder(current_file), shell=True)
+		AUTOMATION_RUN = Popen(args, stdout=PIPE, universal_newlines=True, cwd=get_automation_folder(self.current_file), shell=True)
 		t = threading.Thread(target=self.read_output)
 		t.setDaemon(True)
 		t.start()
@@ -136,7 +144,7 @@ class OpenJavaFileCommand(sublime_plugin.TextCommand):
 		view = self.view
 		step = view.substr(view.line(view.sel()[0].begin()))
 		current_file = self.view.file_name()
-		steps_path = get_project_folder(current_file) + os.sep + STEPS_FOLDER
+		steps_path = get_automation_folder(current_file) + os.sep + STEPS_FOLDER
 		java_file, found_step = self.find_file(steps_path, step)
 		print(java_file, found_step)
 		if java_file is not None:
