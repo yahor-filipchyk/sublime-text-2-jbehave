@@ -49,6 +49,9 @@ def get_step_pattern(step):
 	step_pattern = str(step)
 	for param in params:
 		step_pattern = re.sub(re.escape(param), '(.*)', step_pattern, 1)
+	# composite steps handling
+	if re.match(r'.*: \(\.\*\).*', step_pattern):
+		step_pattern = re.sub(r' \(\.\*\)', '(.*)', step_pattern)
 	return step_pattern
 
 def get_automation_folder(current_file):
@@ -182,11 +185,17 @@ class OpenJavaFileCommand(sublime_plugin.TextCommand):
 					continue
 				with open(full_path, "r") as source:
 					for line in source.readlines():
-						match = re.search(r'^\s*@(When|Then|Given|Alias)\("(.*)"\)\s?$', line)
+						match = re.search(r'^\s*@(When|Then|Given|Alias|Aliases)\((.*)\)\s?$', line)
 						if match is not None:
-							candidate = match.group(2)
-							if does_story_step_match_actual(step, candidate):
-								return full_path, candidate
+							if match.group(1) == "Aliases":
+								aliases = re.findall(r'\s?"(.*)"\s?', line)
+								for alias in aliases[0].split(r'", "'):
+									if does_story_step_match_actual(step, alias):
+										return full_path, alias
+							else:
+								candidate = match.group(2)[1:-1]	# annotation value without quotes
+								if does_story_step_match_actual(step, candidate):
+									return full_path, candidate
 		return None, None
 
 
