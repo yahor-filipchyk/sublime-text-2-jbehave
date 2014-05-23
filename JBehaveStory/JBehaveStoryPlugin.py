@@ -36,12 +36,13 @@ DEFAULT_CONFIG = {
 	TEST_URI: XQADEV,
 }
 
+# holds Popen with maven
 AUTOMATION_RUN = None
 
 
 def does_story_step_match_actual(story_step, actual_step):
 	step_pattern = get_step_pattern(actual_step)
-	return story_step == actual_step or re.match(step_pattern, story_step) is not None
+	return story_step == actual_step or re.match(step_pattern, story_step)
 
 
 def get_step_pattern(step):
@@ -54,6 +55,7 @@ def get_step_pattern(step):
 		step_pattern = re.sub(r' \(\.\*\)', '(.*)', step_pattern)
 	return step_pattern
 
+
 def get_automation_folder(current_file):
 	match = re.search(r'(.*juice-test(\\|/)juice-test-behaviour(\\|/)).*', current_file)
 	if match:
@@ -61,14 +63,8 @@ def get_automation_folder(current_file):
 	return None
 
 
-class HighlightParamsCommand(sublime_plugin.EventListener):
-	"""Highligts actual parameters in steps"""
-
-	def on_modified(self, view):
-		pass
-
-
 class StopAutomationCommand(sublime_plugin.TextCommand):
+	"""Stops the automation"""
 
 	def run(self, edit):
 		global AUTOMATION_RUN
@@ -77,6 +73,7 @@ class StopAutomationCommand(sublime_plugin.TextCommand):
 
 
 class RunStoryCommand(sublime_plugin.TextCommand):
+	"""Runs the automation"""
 
 	def __init__(self, edit):
 		sublime_plugin.TextCommand.__init__(self, edit)
@@ -84,14 +81,16 @@ class RunStoryCommand(sublime_plugin.TextCommand):
 
 	def run(self, edit, environment, instance):
 		self.current_file = self.view.file_name()
-		match = re.search(r'(\\|/)(\w+)\.story', self.current_file)
 		story = DEFAULT_CONFIG[STORY_FILTER]
 		folder = DEFAULT_CONFIG[STORY_FOLDER]
+		# getting story filter and folder
+		match = re.search(r'(\\|/)(\w+)\.story', self.current_file)
 		if match:
 			story = match.group(2)
 			match = re.search(r'stories(\\|/)(.*)(\\|/)' + story + r'\.story', self.current_file)
 			if match:
 				folder = re.sub(r'\\', r'/', match.group(2))
+		# overriding the default config
 		config = dict(DEFAULT_CONFIG)
 		config[STORY_FOLDER] = folder
 		config[STORY_FILTER] = story
@@ -102,23 +101,28 @@ class RunStoryCommand(sublime_plugin.TextCommand):
 				config[TEST_URI] = DEFAULT_URLS[XDEVTINY].format(instance)
 		else:
 			config[TEST_URI] = DEFAULT_URLS[environment]
+		"creating command line args"
 		args = ""
 		for key in config.keys():
 			if config[key] != "":
 				args += "-D" + key + "=" + config[key] + " "
 		if config[STORY_FILTER] != "" and config[STORY_FOLDER] != "":
+			# opening input panel with default settings
 			self.view.window().show_input_panel("Run", args[0:-1], self.get_input, None, None)
 
 	def get_input(self, text):
+		"""Handles the input panel submitting"""
 		args = r'{0}{1}mvn -s {2} clean install -Dtest.contextView=false {3}'.format(MAVEN_FOLDER, os.sep, MAVEN_SETTINGS, text)
 		print(args)
 		global AUTOMATION_RUN
 		AUTOMATION_RUN = Popen(args, stdout=PIPE, universal_newlines=True, cwd=get_automation_folder(self.current_file), shell=True)
+		# new thread will read the output of maven process
 		t = threading.Thread(target=self.read_output)
 		t.setDaemon(True)
 		t.start()
 
 	def read_output(self):
+		"""Prints the process output to Sublime console"""
 		global AUTOMATION_RUN
 		while AUTOMATION_RUN is not None and not AUTOMATION_RUN.poll():
 			line = re.sub(r'(\n|\r)$', r'', AUTOMATION_RUN.stdout.readline())
@@ -126,19 +130,21 @@ class RunStoryCommand(sublime_plugin.TextCommand):
 				print(line)		
 		print("Automation was stopped")
 
+
 class OpenJiraIssue(sublime_plugin.TextCommand):
+	"""Opens Jira issue in default browser"""
 
 	def run(self, edit):
 		view = self.view
-		cursor = view.sel()
 		line = view.substr(view.word(view.sel()[0].begin()))
 		match = re.search(r'((thx|ofmr)(\d+))', line, re.IGNORECASE)
-		if match is not None and len(match.groups()) > 2:
+		if match and len(match.groups()) > 2:
 			issue = match.group(2).upper() + "-" + match.group(3)
 			view.set_status("issue", issue)
 			webbrowser.open_new_tab(JIRA_BROWSE + issue)
 		else:
-			view.set_status("issue", "Cannot parse issue number")
+			# if cursor is not on line with Jira issue plugin will try to find step in Java
+			view.run_command("open_java_file")
 
 
 class OpenJavaFileCommand(sublime_plugin.TextCommand):
@@ -157,9 +163,11 @@ class OpenJavaFileCommand(sublime_plugin.TextCommand):
 		java_file, found_step = self.find_file(steps_path, step)
 		self.found_step = found_step
 		print(java_file, found_step)
+		# open found Java file in new tab and scroll to found step
 		if java_file is not None:
 			window = self.view.window()
 			self.java_view = window.open_file(java_file)
+			# new thread will wait for Java file loading
 			t = threading.Thread(target=self.scroll_view)
 			t.setDaemon(True)
 			t.start()
@@ -169,6 +177,7 @@ class OpenJavaFileCommand(sublime_plugin.TextCommand):
 			time.sleep(0.01)		
 		region = self.java_view.find(re.sub(r'\$', r'\\$', self.found_step), 0)
 		self.java_view.show_at_center(region)
+		# selecting the found step
 		self.java_view.sel().add(region)
 
 	def find_file(self, steps_dir, step):
