@@ -20,7 +20,7 @@
 		<!-- Narrative description -->
 		<dict>
 			<key>match</key>
-			<string>^(In order to|As a|As an|I want to)</string>
+			<string>^(In order to|As an?|I want to)</string>
 			<key>name</key>
 			<string>entity.section</string>
 		</dict>
