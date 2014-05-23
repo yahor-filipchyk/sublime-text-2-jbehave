@@ -5,6 +5,7 @@ import webbrowser
 from subprocess import Popen, PIPE
 import threading
 import sys
+import time
 
 PROJECT_FOLDER = "C:\\th" if "win" in sys.platform else "/th"
 STEPS_FOLDER = "src{0}main{0}java{0}com{0}thunderhead{0}juice{0}integration{0}jbehave{0}steps".format(os.sep)
@@ -140,17 +141,32 @@ class OpenJiraIssue(sublime_plugin.TextCommand):
 class OpenJavaFileCommand(sublime_plugin.TextCommand):
 	"""Opens Java file"""
 
+	def __init__(self, edit):
+		sublime_plugin.TextCommand.__init__(self, edit)
+		self.java_view = None
+		self.found_step = None
+
 	def run(self, edit):
 		view = self.view
 		step = view.substr(view.line(view.sel()[0].begin()))
 		current_file = self.view.file_name()
 		steps_path = get_automation_folder(current_file) + os.sep + STEPS_FOLDER
 		java_file, found_step = self.find_file(steps_path, step)
+		self.found_step = found_step
 		print(java_file, found_step)
 		if java_file is not None:
 			window = self.view.window()
-			window.open_file(java_file)
-			# add selection of found step in new tab
+			self.java_view = window.open_file(java_file)
+			t = threading.Thread(target=self.scroll_view)
+			t.setDaemon(True)
+			t.start()
+
+	def scroll_view(self):
+		while self.java_view.is_loading():
+			time.sleep(0.01)		
+		region = self.java_view.find(re.sub(r'\$', r'\\$', self.found_step), 0)
+		self.java_view.show_at_center(region)
+		self.java_view.sel().add(region)
 
 	def find_file(self, steps_dir, step):
 		step = str(re.sub("(Given|When|Then|And)\s", "", step))
